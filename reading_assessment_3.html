@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grade 2 Reading Assessment</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:Arial,sans-serif;background:#f4f6fa;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:2rem 1rem}
+  .app{width:100%;max-width:700px}
+
+  .header{background:#fff;border-radius:12px;border:1px solid #e0e6ef;padding:1.25rem 1.5rem;margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+  .header-left h1{font-size:16px;font-weight:700;color:#1a1a2e;margin-bottom:3px}
+  .header-left .sub{font-size:12px;color:#888}
+  .header-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .grade-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 13px;border-radius:20px;font-size:13px;font-weight:700}
+  .g2{background:#E6F1FB;color:#0C447C}
+  .g3{background:#EAF3DE;color:#27500A}
+  .g4{background:#FAEEDA;color:#633806}
+  .g5{background:#EEEDFE;color:#3C3489}
+  .g6{background:#FAECE7;color:#712B13}
+
+  .btn-reset{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border:1.5px solid #e0e6ef;border-radius:8px;background:#fff;color:#666;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s}
+  .btn-reset:hover{background:#FCEBEB;border-color:#E24B4A;color:#A32D2D}
+  .stats{display:flex;gap:8px}
+  .stat{background:#f4f6fa;border-radius:8px;padding:5px 12px;text-align:center;min-width:52px}
+  .stat strong{display:block;font-size:17px;font-weight:700;color:#1a1a2e}
+  .stat span{font-size:11px;color:#888}
+
+  .progress-wrap{margin-bottom:.75rem}
+  .progress-bar{height:10px;background:#e0e6ef;border-radius:5px;overflow:hidden;margin-bottom:5px}
+  .progress-fill{height:100%;background:linear-gradient(90deg,#185FA5,#378ADD);border-radius:5px;transition:width .5s ease}
+  .progress-meta{display:flex;justify-content:space-between;font-size:12px;color:#888}
+
+  .streak-row{display:flex;gap:4px;margin-bottom:.75rem;align-items:center;flex-wrap:wrap}
+  .streak-dot{width:11px;height:11px;border-radius:50%;background:#e0e6ef}
+  .streak-dot.c{background:#639922}
+  .streak-dot.w{background:#E24B4A}
+  .streak-label{font-size:12px;color:#888;margin-right:4px}
+
+  .level-msg{border-radius:10px;padding:11px 16px;display:flex;align-items:center;gap:12px;font-size:14px;margin-bottom:.75rem}
+  .level-up{background:#EAF3DE;border:1px solid #97C459;color:#27500A}
+  .level-down{background:#FAEEDA;border:1px solid #EF9F27;color:#633806}
+
+  .skill-banner{background:#fff;border:1px solid #e0e6ef;border-radius:10px;padding:10px 16px;font-size:13px;margin-bottom:.75rem;display:flex;align-items:flex-start;gap:10px;color:#444}
+  .skill-banner strong{color:#185FA5}
+
+  .card{background:#fff;border-radius:12px;border:1px solid #e0e6ef;padding:1.5rem;margin-bottom:.75rem}
+  .q-meta{font-size:12px;color:#888;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .pill{border-radius:4px;padding:2px 8px;font-size:11px;font-weight:700}
+  .pill-type{background:#E6F1FB;color:#0C447C}
+  .pill-std{background:#f0f4f8;color:#555}
+  .pill-review{background:#FAEEDA;color:#633806}
+
+  .passage{background:#f8fafc;border-left:4px solid #378ADD;border-radius:0 8px 8px 0;padding:14px 16px;font-size:14px;line-height:1.85;color:#333;margin-bottom:1.25rem}
+  .question-text{font-size:16px;font-weight:700;color:#1a1a2e;line-height:1.55;margin-bottom:1.25rem}
+
+  .options{display:flex;flex-direction:column;gap:9px}
+  .option{display:flex;align-items:flex-start;gap:12px;padding:11px 16px;border:1.5px solid #e0e6ef;border-radius:10px;cursor:pointer;font-size:14px;color:#333;background:#fff;transition:all .15s;text-align:left;line-height:1.5;width:100%}
+  .option:hover:not([disabled]){background:#f4f6fa;border-color:#b0c4de}
+  .option.selected{background:#E6F1FB;border-color:#185FA5;color:#0C447C}
+  .option.selected .letter{background:#185FA5;color:#fff}
+  .option.correct{background:#EAF3DE;border-color:#639922;color:#27500A}
+  .option.wrong{background:#FCEBEB;border-color:#E24B4A;color:#791F1F}
+  .letter{min-width:27px;height:27px;border-radius:50%;background:#f0f4f8;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
+  .option.correct .letter{background:#C0DD97;color:#27500A}
+  .option.wrong .letter{background:#F7C1C1;color:#791F1F}
+
+  .feedback{border-radius:8px;padding:12px 16px;font-size:13px;line-height:1.65;margin-top:1rem;display:none}
+  .feedback.correct{background:#EAF3DE;border:1px solid #97C459;color:#27500A}
+  .feedback.wrong{background:#FCEBEB;border:1px solid #F7C1C1;color:#791F1F}
+
+  .action-row{display:flex;gap:10px;margin-top:.75rem}
+  .btn-back{flex:0 0 auto;padding:11px 18px;background:#fff;color:#555;border:1.5px solid #e0e6ef;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;transition:all .15s}
+  .btn-back:hover:not([disabled]){background:#f4f6fa;border-color:#b0c4de}
+  .btn-back:disabled{opacity:.35;cursor:not-allowed}
+  .btn-next{flex:1;padding:11px;background:#185FA5;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;transition:background .15s}
+  .btn-next:hover:not([disabled]){background:#0C447C}
+  .btn-next:disabled{opacity:.4;cursor:not-allowed}
+
+  .loading{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4rem 1rem;gap:14px}
+  .spinner{width:40px;height:40px;border:4px solid #e0e6ef;border-top-color:#185FA5;border-radius:50%;animation:spin .8s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .loading p{font-size:14px;color:#888}
+  .loading small{font-size:12px;color:#aaa;text-align:center}
+
+  .results{background:#fff;border-radius:12px;border:1px solid #e0e6ef;padding:2.5rem 2rem;text-align:center}
+  .score-ring{width:110px;height:110px;border-radius:50%;border:8px solid #185FA5;display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0 auto 1.5rem}
+  .score-ring .pct{font-size:26px;font-weight:700;color:#1a1a2e}
+  .score-ring .lbl{font-size:11px;color:#888}
+  .results h2{font-size:21px;font-weight:700;color:#1a1a2e;margin-bottom:6px}
+  .results .sub-msg{font-size:14px;color:#666;margin-bottom:1.5rem}
+  .result-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.5rem}
+  .btn-restart{padding:12px 32px;background:#185FA5;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer}
+  .btn-restart:hover{background:#0C447C}
+
+  .error{background:#FCEBEB;border:1px solid #F7C1C1;border-radius:10px;padding:1.5rem;text-align:center}
+  .error p{color:#791F1F;font-size:14px;margin-bottom:1rem}
+  .btn-retry{padding:8px 20px;background:#185FA5;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer}
+
+  .confirm-overlay{position:absolute;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;border-radius:12px;z-index:10}
+  .confirm-box{background:#fff;border-radius:12px;padding:1.5rem;width:290px;text-align:center}
+  .confirm-box h3{font-size:16px;font-weight:700;color:#1a1a2e;margin-bottom:8px}
+  .confirm-box p{font-size:13px;color:#666;margin-bottom:1.25rem;line-height:1.5}
+  .confirm-btns{display:flex;gap:8px}
+  .confirm-btns button{flex:1;padding:10px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer}
+  .btn-cancel{background:#f4f6fa;border:1px solid #e0e6ef;color:#555}
+  .btn-confirm-reset{background:#E24B4A;border:none;color:#fff}
+  .card-wrap{position:relative}
+  .btn-transfer{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border:1.5px solid #e0e6ef;border-radius:8px;background:#fff;color:#555;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s}
+  .btn-transfer:hover{background:#E6F1FB;border-color:#185FA5;color:#0C447C}
+  .transfer-box{background:#fff;border-radius:12px;border:1px solid #e0e6ef;padding:1.5rem;margin-bottom:1rem}
+  .transfer-box h3{font-size:15px;font-weight:700;color:#1a1a2e;margin-bottom:6px}
+  .transfer-box p{font-size:13px;color:#666;margin-bottom:10px;line-height:1.55}
+  .transfer-code{width:100%;padding:10px;border:1.5px solid #e0e6ef;border-radius:8px;font-size:12px;font-family:monospace;color:#333;resize:none;outline:none}
+  .transfer-code:focus{border-color:#185FA5}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="header">
+    <div class="header-left">
+      <h1>📚 Grade 2 Reading Assessment</h1>
+      <div class="sub">Based on CCSS ELA — End of Grade 2 · 80 Questions · Summer 2026</div>
+    </div>
+    <div class="header-right">
+      <button class="btn-transfer" onclick="showExport()" title="Copy progress code to move to another device">📤 Export</button>
+      <button class="btn-transfer" onclick="showImport()" title="Paste progress code from another device">📥 Import</button>
+      <button class="btn-reset" onclick="confirmReset()">🔄 Reset</button>
+      <div id="grade-badge" class="grade-badge g2">⭐ Grade 2</div>
+      <div class="stats">
+        <div class="stat"><strong id="s-correct">0</strong><span>Correct</span></div>
+        <div class="stat"><strong id="s-total">0</strong><span>Total</span></div>
+        <div class="stat"><strong id="s-streak">0</strong><span>Streak</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-bar"><div class="progress-fill" id="progress" style="width:0%"></div></div>
+    <div class="progress-meta">
+      <span id="progress-label">Question 0 of 60</span>
+      <span id="skill-label"></span>
+    </div>
+  </div>
+
+  <div class="streak-row" id="streak-row"><span class="streak-label">Progress:</span></div>
+  <div id="level-msg" style="display:none" class="level-msg"></div>
+  <div id="skill-banner" style="display:none" class="skill-banner"></div>
+  <div id="main"></div>
+</div>
+
+<script>
+const S = {
+  grade:2, correct:0, total:0,
+  streak:0, antiStreak:0,
+  history:[], current:null,
+  answered:false, qCount:0, maxQ:80,
+  questionLog:[],
+  askedTexts:[]  // lightweight list of past question strings for dedup — persisted separately
+};
+
+// Curriculum map: 60 questions grouped by skill area, mapped to CCSS standards
+// Each block covers ~10-12 questions and deepens progressively
+const CURRICULUM = [
+  // Q1–10: Grade 2 Phonics & Word Study (RF.2.3)
+  { start:1, end:10, grade:2, skill:"Phonics & Word Study", std:"RF.2.3",
+    prompt:`Focus ONLY on Grade 2 phonics and word study skills (RF.2.3):
+- Long vs. short vowel sounds in one-syllable words (cake vs. cat, bite vs. bit)
+- Vowel teams: ai, ay, ee, ea, oa, ow, ou, oi, oy
+- Digraphs: sh, ch, th, wh, ph
+- R-controlled vowels: ar, or, er, ir, ur
+- Decode two-syllable words with long vowels
+- Common prefixes: un-, re-, pre-
+- Common suffixes: -ful, -less, -ness, -er, -est
+- Irregular plural nouns: feet, teeth, mice, children, geese
+- Contractions: can't, don't, it's, he's, she's, I've, we'll
+- Compound words: rainbow, notebook, sunlight, bedroom
+Question style: identify the vowel sound, pick the correctly spelled word, identify what a prefix/suffix means, complete the compound word, choose the correct contraction.` },
+
+  // Q11–20: Grade 2 Vocabulary & Language (L.2.4, L.2.5)
+  { start:11, end:20, grade:2, skill:"Vocabulary & Language", std:"L.2.4–L.2.5",
+    prompt:`Focus ONLY on Grade 2 vocabulary and language skills (L.2.4, L.2.5):
+- Use context clues to figure out an unknown word in a short sentence
+- Multiple-meaning words (e.g., "bark" can mean tree bark or a dog's sound)
+- Antonyms and synonyms at Grade 2 level
+- Shades of meaning: happy / glad / overjoyed; cold / chilly / freezing
+- Use of adjectives and adverbs (L.2.1e): choose the correct word to modify a noun vs. a verb
+- Collective nouns (L.2.1a): a flock of birds, a herd of cattle
+- Irregular verbs past tense (L.2.1d): run→ran, sit→sat, hide→hid, tell→told, bring→brought
+- Capitalization: holidays, product names, geographic names (L.2.2a)
+- Apostrophes: contractions vs. possessives (L.2.2c)
+Question style: choose the meaning of a bold word from context, pick the synonym/antonym, choose correct capitalization, correct irregular past tense, pick the right adjective or adverb.` },
+
+  // Q21–32: Grade 2 Reading Literature (RL.2.1–RL.2.7)
+  { start:21, end:32, grade:2, skill:"Reading Literature", std:"RL.2.1–RL.2.7",
+    prompt:`Focus ONLY on Grade 2 reading literature comprehension (RL.2.1–RL.2.7):
+- Ask and answer who/what/where/when/why/how questions about a short passage (RL.2.1)
+- Identify the central message, lesson, or moral of a story (RL.2.2)
+- Describe how a character responds to a challenge or event (RL.2.3)
+- Identify rhyme, rhythm, repeated lines, alliteration in a poem (RL.2.4)
+- Describe story structure: beginning, middle, end (RL.2.5)
+- Point of view: who is telling the story — first person (I/we) vs. third person (he/she/they) (RL.2.6)
+- Sequence of events: what happened first / next / last
+Passages should be 4–8 sentences of Grade 2-appropriate narrative or poetry. Include a fable, a realistic fiction snippet, and a short poem across different questions.
+Question style: literal comprehension, central message, character trait, identifying story structure elements, sequence, point of view.` },
+
+  // Q33–42: Grade 2 Informational Text (RI.2.1–RI.2.9)
+  { start:33, end:42, grade:2, skill:"Informational Text", std:"RI.2.1–RI.2.9",
+    prompt:`Focus ONLY on Grade 2 informational/nonfiction reading skills (RI.2.1–RI.2.9):
+- Ask and answer who/what/where/when/why/how in a nonfiction passage (RI.2.1)
+- Identify the main topic and key details (RI.2.2)
+- Describe connections between events, procedures, concepts (RI.2.3)
+- Determine word meanings in a nonfiction context (RI.2.4)
+- Know and use nonfiction text features: headings, captions, glossaries, indexes, bold words (RI.2.5)
+- Identify the author's main purpose: to inform, to entertain, to persuade (RI.2.6)
+- Use information from illustrations or text features (RI.2.7)
+- Compare/contrast two informational texts on the same topic (RI.2.9)
+Passages should be 4–8 sentences of Grade 2-level nonfiction (animals, science, how things work, community helpers, simple history). 
+Question style: main idea, key detail, author's purpose, text feature function, compare two passages.` },
+
+  // Q43–52: Grade 3 Bridge — Increasing Complexity
+  { start:43, end:52, grade:3, skill:"Grade 3 Challenge", std:"RL/RI.3 + L.3",
+    prompt:`These are Grade 3 level questions — harder than Grade 2, testing deeper skills:
+- Inference: use clues in the text to figure out something the author doesn't directly state
+- Theme: the central lesson or message of a longer passage (not just the plot summary)
+- Character traits: use evidence from the text to describe personality (kind, brave, curious, stubborn)
+- Cause and effect: identify what caused an event and what resulted from it
+- Literal vs. nonliteral language (L.3.3a): "It was raining cats and dogs" — what does this really mean?
+- Prefix/suffix meanings (L.3.4b): mis-, non-, over-, -tion, -sion, -ment, -ous
+- Point of view: how does the narrator or speaker feel about events?
+- Compare and contrast: how are two characters or two settings different?
+Passages should be 5–9 sentences of Grade 3 complexity — richer vocabulary, more complex sentences.
+Question style: inference, theme, character trait with text evidence, idiom meaning, cause/effect, prefix/suffix definition.` },
+
+  // Q53–60: Grade 4–5 Advanced — Top performers only
+  { start:53, end:60, grade:4, skill:"Grade 4–5 Advanced", std:"RL/RI.4–5 + L.4–5",
+    prompt:`These are Grade 4–5 level questions — for students performing well above grade level:
+- Figurative language: simile, metaphor, personification, hyperbole in context (L.4.5, L.5.5)
+- Author's purpose and perspective: why did the author include this detail? What is the author's viewpoint?
+- Text structure: description, sequence, compare/contrast, cause/effect, problem/solution — identify which is used
+- Theme vs. main idea: distinguish between the two in a complex passage
+- Connotation: what feeling does a word carry? (e.g., "stubborn" vs. "determined")
+- Greek and Latin roots: bio-, geo-, phon-, -graph, -ology, -tion
+- Multi-paragraph passages requiring synthesis of information across paragraphs
+- Evaluate claims: which detail best supports the author's point?
+Passages should be 8–12 sentences with Grade 4–5 vocabulary and complex sentence structure.
+Question style: figurative language identification, text structure, author's purpose with reasoning, theme, connotation, root word meaning.` },
+
+  // Q61–70: Grade 5 Mastery — student has shown ability on complex questions
+  { start:61, end:70, grade:5, skill:"Grade 5 Mastery", std:"RL/RI.5 + L.5",
+    prompt:`These are Grade 5 mastery-level questions. The student has demonstrated strong performance on complex questions, so push into deep Grade 5 skills:
+- Figurative language in context: extended metaphor, alliteration, onomatopoeia, imagery — not just identify but explain the effect on meaning or tone
+- Point of view and perspective: first person vs. third person limited vs. omniscient narrator; how POV shapes meaning
+- Summarize vs. paraphrase: choose the best objective summary of a multi-paragraph passage
+- Word relationships: analogies, homophones in context, nuanced synonyms (furious vs. angry vs. annoyed)
+- Informational: integrate information from two related passages on the same topic; what does one passage add that the other doesn't?
+- Text evidence: which quote from the passage best supports a given conclusion?
+- Author's craft: why did the author choose a specific word, sentence structure, or detail?
+- Vocabulary: Greek/Latin roots in rich context — aqua, terra, port, dict, aud, vis, scrib
+Passages should be 8–14 sentences with varied sentence structure, Grade 5 vocabulary, and nuanced ideas.
+Question style: effect of figurative language, POV impact, best summary, text evidence, word relationship, integrate two sources, author craft.` },
+
+  // Q71–80: Grade 5–6 Expert — highest level, reward strong performers
+  { start:71, end:80, grade:5, skill:"Grade 5–6 Expert Challenge", std:"RL/RI.5–6 + L.5–6",
+    prompt:`These are the most challenging questions in the assessment — Grade 5–6 expert level. The student has done well throughout so give them a genuine challenge:
+- Complex inference: meaning must be pieced together from multiple clues across a passage; nothing is stated directly
+- Symbolism and theme: identify what an object, character, or event symbolizes; connect symbol to the story's central theme
+- Evaluating arguments: in a nonfiction passage, identify the author's claim, the evidence used, and whether the reasoning is strong or weak
+- Subtle tone and mood: distinguish between tone (author's attitude) and mood (reader's feeling); use specific word choices as evidence
+- Synthesis across texts: given two passages on a related topic, identify a shared theme or a key point of disagreement
+- Advanced vocabulary in context: polysemous words (words with many meanings), precise academic vocabulary (analyze, infer, justify, elaborate)
+- Sentence-level grammar at Grade 6: subordinate clauses, appositive phrases, parallel structure — identify the correctly structured sentence
+- Literary analysis: short poem or literary excerpt — explain how structure (stanzas, line breaks, repetition) contributes to meaning
+Passages should be 10–16 sentences or a short poem. Use layered, complex questions where all four options are plausible and require careful reading to eliminate wrong answers.
+Question style: inference chain, symbolism, evaluate argument, tone vs. mood, cross-text synthesis, advanced vocabulary, grammar, poetic structure.` }
+];
+
+const gradeLabels = {2:'⭐ Grade 2',3:'🌟 Grade 3',4:'💫 Grade 4',5:'✨ Grade 5',6:'🏆 Grade 6'};
+const gradeClass  = {2:'g2',3:'g3',4:'g4',5:'g5',6:'g6'};
+const letters = ['A','B','C','D'];
+
+function getBlock(qNum) {
+  return CURRICULUM.find(b => qNum >= b.start && qNum <= b.end) || CURRICULUM[CURRICULUM.length-1];
+}
+
+function buildPrompt() {
+  const nextQ = S.qCount + 1;
+  const block = getBlock(nextQ);
+  const effectiveGrade = Math.max(block.grade, S.grade);
+
+  const posInBlock = nextQ - block.start + 1;
+  const blockSize = block.end - block.start + 1;
+  const difficulty = posInBlock <= Math.ceil(blockSize/3) ? 'entry level' :
+                     posInBlock <= Math.ceil(2*blockSize/3) ? 'mid level' : 'hardest in block';
+
+  const prevList = S.askedTexts.length > 0
+    ? '\nPREVIOUSLY ASKED — do NOT repeat or closely resemble any of these:\n' +
+      S.askedTexts.map((t,i) => `${i+1}. ${t}`).join('\n') + '\n'
+    : '';
+
+  return `You are generating questions for the HARDEST tier of the i-Ready Reading Diagnostic — designed for a strong 2nd grader who finds standard grade-level questions too easy. Your goal is to genuinely challenge her and push her ceiling, while keeping the experience positive and empowering.
+
+CURRENT QUESTION: ${nextQ} of 80
+SKILL AREA: ${block.skill} (${block.std})
+TARGET GRADE: Grade ${effectiveGrade} — push to the absolute TOP of this grade tier
+DIFFICULTY: ${difficulty} (question ${posInBlock} of ${blockSize} in this block)
+STUDENT STREAK: ${S.streak} correct / ${S.antiStreak} wrong in a row
+${prevList}
+
+CHALLENGE REQUIREMENTS — apply every single one:
+1. PASSAGES: Minimum 6 sentences. Complex, varied sentence structures. Vocabulary slightly above comfort zone but inferable from careful reading. Include nuance — characters with mixed feelings, cause-effect chains, non-literal language, ideas that must be inferred not just found.
+2. QUESTIONS: NEVER ask what is directly stated. Always require inference, synthesis, evaluation, or interpretation of author intent. Ask WHY and HOW, not just WHAT.
+3. ANSWER TRAPS: All 4 options must look plausible on first read. Wrong answers must be:
+   — Partially true but incomplete or too narrow
+   — True of the passage but answering the wrong question
+   — A common misreading of the most important sentence
+   — Contradicted only by a small detail a rushed reader would miss
+4. VOCABULARY: Embed words in rich context. Wrong choices = real definitions of the word, just not contextually correct.
+5. PHONICS/WORD STUDY: Push into irregular patterns, multi-syllable decoding, morphology — not just sound identification but how a prefix/suffix changes meaning AND grammatical role.
+6. LITERARY: Ask about author's craft — word choice, structure, effect of opening line, what a detail reveals about character, what would be LOST if a sentence were removed.
+7. INFORMATIONAL: Distinguish main idea vs. supporting detail, identify implied audience, evaluate which evidence best supports the author's claim.
+8. Vary which option position (0/1/2/3) holds the correct answer — do not default to 0 or 1.
+
+FEEDBACK TONE — this is critical for her confidence:
+Explanations must be warm, growth-oriented, and educational. Challenge her brain, never her confidence. Use language like:
+- 'Great thinking — this one was designed to be tricky! The key clue was...'
+- 'So close! [Wrong answer] makes sense at first, but look at [specific line] — it tells us...'
+- 'This is a tough one! The passage does not say it directly, but [clue] hints that...'
+- 'Sharp eye needed here — the answer is [X] because...'
+Always name the specific clue in the passage so she learns the reading strategy, not just the answer.
+
+SKILL INSTRUCTIONS:
+${block.prompt}
+
+FORMATTING RULES:
+- ONE unique question — completely different from all previously asked questions
+- No location-based themes — purely curriculum
+- Options: answer text ONLY — absolutely NO A. B) (A) or any letter prefix
+- Standard: specific CCSS sub-code e.g. RL.2.3, L.2.4b, RF.2.3a
+- Passages: minimum 6 sentences for any comprehension question
+
+Return ONLY valid JSON, no markdown, no extra text:
+{
+  "type": "phonics|vocabulary|grammar|literature|informational",
+  "standard": "e.g. RL.2.3",
+  "skillLabel": "e.g. Author's Craft",
+  "passage": "full rich passage, or null if not comprehension",
+  "question": "question requiring inference, synthesis, or evaluation — never surface recall",
+  "options": ["option","option","option","option"],
+  "correct": 0,
+  "explanation": "warm encouraging explanation — teach the strategy, name the key clue, address the trickiest wrong answer"
+}`;
+}
+
+async function fetchQ() {
+  showLoading();
+  try {
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 2000,
+        messages: [{ role: "user", content: buildPrompt() }]
+      })
+    });
+    if (!res.ok) throw new Error("API error "+res.status);
+    const data = await res.json();
+    const raw = data.content.map(c=>c.text||"").join("").replace(/```json|```/g,"").trim();
+    const q = JSON.parse(raw);
+    if (!q.question||!q.options||q.options.length<4) throw new Error("Incomplete response");
+    S.current = q;
+    S.answered = false;
+    checkSkillBanner();
+    renderQ(q, null);
+  } catch(e) {
+    showError(e.message);
+  }
+}
+
+function checkSkillBanner() {
+  const nextQ = S.qCount + 1;
+  const block = getBlock(nextQ);
+  if (nextQ === block.start) {
+    const banner = document.getElementById('skill-banner');
+    banner.style.display = 'flex';
+    banner.innerHTML = `<span style="font-size:18px">📖</span><div><strong>${block.skill}</strong> — Questions ${block.start}–${block.end} · Standard ${block.std}</div>`;
+    setTimeout(()=>banner.style.display='none', 5000);
+  }
+}
+
+function renderQ(q, selectedIdx) {
+  const typeLabel = q.type.charAt(0).toUpperCase()+q.type.slice(1);
+  const passageHtml = q.passage ? `<div class="passage">${q.passage}</div>` : '';
+  const isReview = selectedIdx !== null;
+  const wasCorrect = isReview ? (selectedIdx === q.correct) : null;
+
+  // Strip all common AI-generated option prefixes: A. A) (A) a. 1. 1) etc.
+  q._clean = q.options.map(o =>
+    o.replace(/^\s*[\(\[]?[A-Da-d1-4][\.\)\]]\s*/g, '').trim()
+  );
+
+  const optionsHtml = q._clean.map((o,i) => {
+    let cls = '';
+    if (isReview) {
+      if (i === q.correct) cls = 'correct';
+      else if (i === selectedIdx && i !== q.correct) cls = 'wrong';
+    }
+    const handler = isReview ? '' : `onclick="selectOption(${i})"`;
+    return `<button class="option ${cls}" id="o${i}" ${handler} ${isReview ? 'disabled' : ''}>
+      <span class="letter">${letters[i]}</span><span>${o}</span>
+    </button>`;
+  }).join('');
+
+  let feedbackHtml = '';
+  if (isReview) {
+    feedbackHtml = wasCorrect
+      ? `<div class="feedback correct" style="display:block"><strong>✅ Correct!</strong> ${q.explanation}</div>`
+      : `<div class="feedback wrong" style="display:block"><strong>❌ Not quite.</strong> The correct answer is "<strong>${q._clean[q.correct]}</strong>". ${q.explanation}</div>`;
+  }
+
+  const canGoBack = S.questionLog.length > (isReview ? 1 : 0);
+  const stdPill   = q.standard   ? `<span class="pill pill-std">${q.standard}</span>`   : '';
+  const skillPill = q.skillLabel ? `<span class="pill pill-std">${q.skillLabel}</span>` : '';
+
+  const gradeCallouts = {
+    3:{bg:'#EAF3DE',border:'#97C459',color:'#27500A',icon:'🌟',label:'Grade 3 Question',desc:'This is a 3rd grade level question — above Grade 2!'},
+    4:{bg:'#FAEEDA',border:'#EF9F27',color:'#633806',icon:'💫',label:'Grade 4 Question',desc:'Wow — this is a 4th grade level question!'},
+    5:{bg:'#EEEDFE',border:'#9B93F5',color:'#3C3489',icon:'✨',label:'Grade 5 Question',desc:'Excellent — this is a 5th grade level question!'},
+    6:{bg:'#FAECE7',border:'#F28B6E',color:'#712B13',icon:'🏆',label:'Grade 6 Question',desc:'Outstanding — this is a 6th grade level question!'}
+  };
+  const callout = gradeCallouts[S.grade];
+  const gradeBannerHtml = callout ? `
+    <div style="background:${callout.bg};border:1.5px solid ${callout.border};border-radius:10px;padding:10px 16px;display:flex;align-items:center;gap:12px;margin-bottom:.75rem">
+      <span style="font-size:22px">${callout.icon}</span>
+      <div>
+        <div style="font-size:13px;font-weight:700;color:${callout.color}">${callout.label}</div>
+        <div style="font-size:12px;color:${callout.color};opacity:.85">${callout.desc} She's performing above grade level.</div>
+      </div>
+    </div>` : '';
+
+  // Submit button row — only before answering
+  const submitRowHtml = !isReview ? `
+    <div id="submit-area" style="margin-top:1rem">
+      <button id="btn-submit" onclick="submitAnswer()" disabled
+        style="width:100%;padding:11px;background:#185FA5;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;opacity:.4;transition:opacity .2s">
+        ✔ Submit Answer
+      </button>
+      <div id="submit-hint" style="font-size:12px;color:#aaa;text-align:center;margin-top:6px">
+        Select an answer above — you can change your mind before submitting
+      </div>
+    </div>` : '';
+
+  document.getElementById('main').innerHTML = `
+    <div class="card-wrap">
+      ${gradeBannerHtml}
+      <div class="card">
+        <div class="q-meta">
+          Q${isReview ? S.qCount : S.qCount + 1}${isReview ? ' (reviewing)' : ''} of ${S.maxQ}
+          <span class="pill pill-type">${typeLabel}</span>
+          ${stdPill}${skillPill}
+          ${isReview ? '<span class="pill pill-review">Reviewing</span>' : ''}
+        </div>
+        ${passageHtml}
+        <div class="question-text">${q.question}</div>
+        <div class="options">${optionsHtml}</div>
+        ${feedbackHtml}
+        ${!isReview ? '<div class="feedback" id="fb"></div>' : ''}
+        ${submitRowHtml}
+      </div>
+      <div class="action-row">
+        <button class="btn-back" id="btn-back" onclick="goBack()" ${canGoBack ? '' : 'disabled'}>← Back</button>
+        <button class="btn-next" id="btn-next" onclick="next()"
+          style="${isReview ? '' : 'display:none'}"
+          ${isReview ? '' : 'disabled'}>
+          ${S.qCount >= S.maxQ ? 'See results →' : 'Next question →'}
+        </button>
+      </div>
+    </div>`;
+  S._pending = null;
+}
+
+// Tap an option to select or deselect it — no commit yet
+function selectOption(idx) {
+  if (S.answered) return;
+  const prev = S._pending;
+  // Deselect previous if different
+  if (prev !== null && prev !== idx) {
+    const pb = document.getElementById('o' + prev);
+    if (pb) pb.classList.remove('selected');
+  }
+  // Toggle off if same
+  if (prev === idx) {
+    document.getElementById('o' + idx).classList.remove('selected');
+    S._pending = null;
+    const sb = document.getElementById('btn-submit');
+    if (sb) { sb.disabled = true; sb.style.opacity = '0.4'; }
+    const hint = document.getElementById('submit-hint');
+    if (hint) hint.textContent = 'Select an answer above — you can change your mind before submitting';
+    return;
+  }
+  S._pending = idx;
+  document.getElementById('o' + idx).classList.add('selected');
+  const sb = document.getElementById('btn-submit');
+  if (sb) { sb.disabled = false; sb.style.opacity = '1'; }
+  const hint = document.getElementById('submit-hint');
+  if (hint) hint.textContent = `"${letters[idx]}" selected — tap another option to change, or click Submit to lock in`;
+}
+
+// Lock in and score the answer
+function submitAnswer() {
+  if (S.answered || S._pending === null) return;
+  const idx = S._pending;
+  S.answered = true; S.total++; S.qCount++;
+  const correct = S.current.correct;
+  const ok = idx === correct;
+  const cleanOpts = S.current._clean || S.current.options;
+
+  S.questionLog.push({ q: S.current, selectedIdx: idx, wasCorrect: ok, grade: S.grade });
+  S.askedTexts.push(`[${S.current.skillLabel||S.current.type}] ${S.current.question}`);
+
+  document.querySelectorAll('.option').forEach(b => b.disabled = true);
+  document.getElementById('o' + idx).classList.remove('selected');
+  document.getElementById('o' + idx).classList.add(ok ? 'correct' : 'wrong');
+  if (!ok) document.getElementById('o' + correct).classList.add('correct');
+
+  const fb = document.getElementById('fb');
+  if (fb) {
+    fb.style.display = 'block';
+    if (ok) {
+      fb.className = 'feedback correct';
+      fb.innerHTML = `<strong>✅ Correct!</strong> ${S.current.explanation}`;
+      S.correct++; S.streak++; S.antiStreak = 0; S.history.push('c');
+    } else {
+      fb.className = 'feedback wrong';
+      fb.innerHTML = `<strong>❌ Not quite.</strong> The correct answer is "<strong>${cleanOpts[correct]}</strong>". ${S.current.explanation}`;
+      S.streak = 0; S.antiStreak++; S.history.push('w');
+    }
+  }
+
+  // Hide submit area, show Next button
+  const sa = document.getElementById('submit-area');
+  if (sa) sa.style.display = 'none';
+  const nb = document.getElementById('btn-next');
+  if (nb) { nb.style.display = ''; nb.disabled = false; nb.textContent = S.qCount >= S.maxQ ? 'See results →' : 'Next question →'; }
+  const bb = document.getElementById('btn-back');
+  if (bb) bb.disabled = S.questionLog.length <= 1;
+
+  updateUI();
+  checkLevel();
+  saveProgress();
+}
+
+function checkLevel() {
+  const block = getBlock(S.qCount);
+  const msg = document.getElementById('level-msg');
+  // Level up: 4 correct in a row, max Grade 5
+  if (S.streak>=4 && S.grade<6) {
+    S.grade++;
+    S.streak=0;
+    msg.className='level-msg level-up';
+    msg.innerHTML=`<span style="font-size:20px">🚀</span><div><strong>Level up!</strong> Great work — you've moved to ${gradeLabels[S.grade]} difficulty!</div>`;
+    msg.style.display='flex'; updateBadge();
+    setTimeout(()=>msg.style.display='none',4500);
+  } else if (S.antiStreak>=3 && S.grade>block.grade) {
+    // Don't drop below the block's base grade
+    S.grade=Math.max(S.grade-1,block.grade);
+    S.antiStreak=0;
+    msg.className='level-msg level-down';
+    msg.innerHTML=`<span style="font-size:20px">💪</span><div>Stepping back to ${gradeLabels[S.grade]} — you've got this, keep going!</div>`;
+    msg.style.display='flex'; updateBadge();
+    setTimeout(()=>msg.style.display='none',4500);
+  }
+}
+
+function goBack() {
+  if (S.questionLog.length===0) return;
+  const last=S.questionLog[S.questionLog.length-1];
+  if (S.answered) {
+    S.total--;S.qCount--;
+    if(last.wasCorrect){S.correct--;S.streak=Math.max(0,S.streak-1);}
+    else{S.antiStreak=Math.max(0,S.antiStreak-1);}
+    S.history.pop(); S.questionLog.pop(); updateUI();
+  }
+  if (S.questionLog.length===0){fetchQ();return;}
+  const prev=S.questionLog[S.questionLog.length-1];
+  S.current=prev.q;S.answered=true;S.grade=prev.grade;
+  updateBadge();
+  document.getElementById('level-msg').style.display='none';
+  document.getElementById('skill-banner').style.display='none';
+  renderQ(prev.q,prev.selectedIdx); updateUI();
+}
+
+function next() {
+  if (S.qCount>=S.maxQ){showResults();return;}
+  fetchQ();
+}
+
+function updateUI() {
+  document.getElementById('s-correct').textContent = S.correct;
+  document.getElementById('s-total').textContent = S.total;
+  document.getElementById('s-streak').textContent = S.streak;
+  const pct = Math.round((S.qCount / S.maxQ) * 100);
+  document.getElementById('progress').style.width = pct + '%';
+  const displayQ = S.answered ? S.qCount : S.qCount + 1;
+  document.getElementById('progress-label').textContent = `Question ${displayQ} of ${S.maxQ}`;
+  const block = getBlock(Math.max(S.qCount, 1));
+  document.getElementById('skill-label').textContent = block.skill;
+  // Show ALL history dots (not just last 20) — small dots, wrapping
+  const row = document.getElementById('streak-row');
+  const dots = S.history.map(h => `<div class="streak-dot ${h}"></div>`).join('');
+  row.innerHTML = `<span class="streak-label">Progress:</span>${dots}`;
+}
+
+function updateBadge() {
+  const b=document.getElementById('grade-badge');
+  b.className=`grade-badge ${gradeClass[S.grade]}`;
+  b.textContent=gradeLabels[S.grade];
+}
+
+function confirmReset() {
+  const wrap=document.getElementById('main');
+  const existing=wrap.querySelector('.confirm-overlay');
+  if(existing){existing.remove();return;}
+  const overlay=document.createElement('div');
+  overlay.className='confirm-overlay';
+  overlay.innerHTML=`
+    <div class="confirm-box">
+      <h3>Reset Assessment?</h3>
+      <p>This will clear all progress and restart from Question 1, Grade 2. Are you sure?</p>
+      <div class="confirm-btns">
+        <button class="btn-cancel" onclick="this.closest('.confirm-overlay').remove()">Cancel</button>
+        <button class="btn-confirm-reset" onclick="doReset()">Yes, reset</button>
+      </div>
+    </div>`;
+  const cw=wrap.querySelector('.card-wrap');
+  if(cw){cw.appendChild(overlay);}else{wrap.style.position='relative';wrap.appendChild(overlay);}
+}
+
+// ── Save / Resume ──────────────────────────────────────────────
+const SAVE_KEY = 'reading_assessment_v2';
+
+function saveProgress() {
+  try {
+    // askedTexts: lightweight list of question strings for dedup — never trimmed
+    // questionLog: only keep last 10 for back-navigation (full objects are large)
+    const snapshot = {
+      grade: S.grade, correct: S.correct, total: S.total,
+      streak: S.streak, antiStreak: S.antiStreak,
+      history: S.history, qCount: S.qCount,
+      questionLog: S.questionLog.slice(-10),
+      askedTexts: S.askedTexts,
+      savedAt: new Date().toISOString()
+    };
+    localStorage.setItem(SAVE_KEY, JSON.stringify(snapshot));
+  } catch(e) {
+    // If storage is full, retry with smaller payload
+    try {
+      const snapshot = {
+        grade: S.grade, correct: S.correct, total: S.total,
+        streak: S.streak, antiStreak: S.antiStreak,
+        history: S.history, qCount: S.qCount,
+        questionLog: [],
+        askedTexts: S.askedTexts,
+        savedAt: new Date().toISOString()
+      };
+      localStorage.setItem(SAVE_KEY, JSON.stringify(snapshot));
+    } catch(e2) { /* give up silently */ }
+  }
+}
+
+function loadSaved() {
+  try {
+    let raw = localStorage.getItem('reading_assessment_v2');
+    if (!raw) raw = localStorage.getItem('reading_assessment_v1');
+    if (!raw) return null;
+    const snap = JSON.parse(raw);
+    // Accept any valid save with at least 1 question answered
+    if (!snap || snap.qCount === undefined || snap.qCount < 1) return null;
+    return snap;
+  } catch(e) { return null; }
+}
+
+function clearSave() {
+  try { localStorage.removeItem(SAVE_KEY); } catch(e) {}
+}
+
+function showResumeScreen(snap) {
+  const date = new Date(snap.savedAt);
+  const dateStr = date.toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric'});
+  const timeStr = date.toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit'});
+  const nextQ = (snap.qCount || 0) + 1;
+  const block = getBlock(Math.min(nextQ, S.maxQ));
+  const pctDone = Math.round(((snap.qCount || 0) / S.maxQ) * 100);
+  const wrongCount = (snap.history || []).filter(h => h === 'w').length;
+  const correctCount = snap.correct || 0;
+
+  document.getElementById('main').innerHTML = `
+    <div class="card" style="text-align:center;padding:2rem 1.5rem">
+      <div style="font-size:36px;margin-bottom:12px">📖</div>
+      <h2 style="font-size:18px;font-weight:700;color:#1a1a2e;margin-bottom:8px">Welcome back!</h2>
+      <p style="font-size:14px;color:#666;margin-bottom:1rem;line-height:1.7">
+        Last session: <strong>${dateStr} at ${timeStr}</strong><br>
+        Next up: <strong>Question ${nextQ}</strong> — <em>${block.skill}</em><br>
+        Questions answered: <strong>${snap.qCount}</strong> of ${S.maxQ} (${pctDone}% done)
+      </p>
+      <div style="display:flex;justify-content:center;gap:16px;margin-bottom:1.5rem">
+        <div class="stat" style="background:#EAF3DE"><strong style="color:#27500A">${correctCount}</strong><span>Correct</span></div>
+        <div class="stat" style="background:#FCEBEB"><strong style="color:#A32D2D">${wrongCount}</strong><span>Wrong</span></div>
+        <div class="stat"><strong>${snap.qCount}</strong><span>Done</span></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px;max-width:320px;margin:0 auto">
+        <button class="btn-next" onclick="resumeSession()">▶ Resume from Question ${nextQ}</button>
+        <button class="btn-back" style="flex:unset;width:100%" onclick="doReset()">🔄 Start fresh from Question 1</button>
+      </div>
+    </div>`;
+  // Restore state immediately so progress bar and dots render correctly
+  Object.assign(S, {
+    grade: snap.grade, correct: snap.correct, total: snap.total,
+    streak: snap.streak || 0, antiStreak: snap.antiStreak || 0,
+    history: snap.history || [], qCount: snap.qCount,
+    questionLog: snap.questionLog || [],
+    askedTexts: snap.askedTexts || (snap.questionLog || []).map(e => `[${e.q?.skillLabel||e.q?.type||''}] ${e.q?.question||''}`),
+    answered: true, current: null, _pending: null
+  });
+  updateUI(); updateBadge();
+}
+
+function resumeSession() {
+  const snap = loadSaved();
+  if (!snap) { fetchQ(); return; }
+  Object.assign(S, {
+    grade: snap.grade, correct: snap.correct, total: snap.total,
+    streak: snap.streak || 0, antiStreak: snap.antiStreak || 0,
+    history: snap.history || [], qCount: snap.qCount,
+    questionLog: snap.questionLog || [],
+    askedTexts: snap.askedTexts || (snap.questionLog || []).map(e => `[${e.q?.skillLabel||e.q?.type||''}] ${e.q?.question||''}`),
+    answered: true,  // keeps qCount at its saved value; fetchQ increments on submit, not on load
+    current: null,
+    _pending: null
+  });
+  updateUI(); updateBadge();
+  document.getElementById('level-msg').style.display = 'none';
+  document.getElementById('skill-banner').style.display = 'none';
+  fetchQ();
+}
+// ───────────────────────────────────────────────────────────────
+
+// ── Export / Import progress ────────────────────────────────────
+function showExport() {
+  const raw = localStorage.getItem('reading_assessment_v2') || localStorage.getItem('reading_assessment_v1');
+  if (!raw || JSON.parse(raw).qCount < 1) {
+    alert('No saved progress to export yet — answer at least one question first!');
+    return;
+  }
+  // Encode as base64 so it's a clean copyable string
+  const code = btoa(unescape(encodeURIComponent(raw)));
+  document.getElementById('main').innerHTML = `
+    <div class="transfer-box">
+      <h3>📤 Export Progress</h3>
+      <p>Copy the code below and paste it on your other device using the <strong>Import</strong> button. Your progress up to Question ${JSON.parse(raw).qCount} will transfer.</p>
+      <textarea class="transfer-code" id="export-code" rows="5" readonly>${code}</textarea>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button class="btn-next" onclick="copyExportCode()" style="flex:1">📋 Copy code</button>
+        <button class="btn-back" onclick="cancelTransfer()" style="flex:0 0 auto">← Back</button>
+      </div>
+      <div id="export-copied" style="display:none;font-size:12px;color:#639922;margin-top:8px;text-align:center">✅ Copied! Now paste it on your other device.</div>
+    </div>`;
+  // Auto-select the code
+  setTimeout(() => {
+    const ta = document.getElementById('export-code');
+    if (ta) ta.select();
+  }, 100);
+}
+
+function copyExportCode() {
+  const ta = document.getElementById('export-code');
+  if (!ta) return;
+  ta.select();
+  try {
+    navigator.clipboard.writeText(ta.value).then(() => showCopiedMsg()).catch(() => {
+      document.execCommand('copy');
+      showCopiedMsg();
+    });
+  } catch(e) {
+    document.execCommand('copy');
+    showCopiedMsg();
+  }
+}
+
+function showCopiedMsg() {
+  const el = document.getElementById('export-copied');
+  if (el) el.style.display = 'block';
+}
+
+function showImport() {
+  document.getElementById('main').innerHTML = `
+    <div class="transfer-box">
+      <h3>📥 Import Progress</h3>
+      <p>Paste the code you copied from your other device below. This will <strong>replace</strong> any progress saved on this device.</p>
+      <textarea class="transfer-code" id="import-code" rows="5" placeholder="Paste your progress code here..."></textarea>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button class="btn-next" onclick="applyImport()" style="flex:1">✅ Import & Resume</button>
+        <button class="btn-back" onclick="cancelTransfer()" style="flex:0 0 auto">← Back</button>
+      </div>
+      <div id="import-error" style="display:none;font-size:12px;color:#A32D2D;margin-top:8px;text-align:center"></div>
+    </div>`;
+  setTimeout(() => {
+    const ta = document.getElementById('import-code');
+    if (ta) ta.focus();
+  }, 100);
+}
+
+function applyImport() {
+  const ta = document.getElementById('import-code');
+  const errEl = document.getElementById('import-error');
+  if (!ta || !ta.value.trim()) {
+    if (errEl) { errEl.textContent = 'Please paste your progress code first.'; errEl.style.display = 'block'; }
+    return;
+  }
+  try {
+    const raw = decodeURIComponent(escape(atob(ta.value.trim())));
+    const snap = JSON.parse(raw);
+    if (!snap || snap.qCount === undefined) throw new Error('Invalid code');
+    // Save to v2 key
+    localStorage.setItem('reading_assessment_v2', raw);
+    // Restore state
+    Object.assign(S, {
+      grade: snap.grade || 2, correct: snap.correct || 0, total: snap.total || 0,
+      streak: snap.streak || 0, antiStreak: snap.antiStreak || 0,
+      history: snap.history || [], qCount: snap.qCount,
+      questionLog: snap.questionLog || [],
+      askedTexts: snap.askedTexts || [],
+      answered: true, current: null, _pending: null
+    });
+    updateUI(); updateBadge();
+    document.getElementById('level-msg').style.display = 'none';
+    document.getElementById('skill-banner').style.display = 'none';
+    showResumeScreen(snap);
+  } catch(e) {
+    if (errEl) { errEl.textContent = 'Invalid code — please make sure you copied the full code from the Export screen.'; errEl.style.display = 'block'; }
+  }
+}
+
+function cancelTransfer() {
+  const saved = loadSaved();
+  if (saved && saved.qCount > 0 && saved.qCount < S.maxQ) {
+    showResumeScreen(saved);
+  } else if (S.qCount > 0) {
+    // Already in progress — just re-fetch next question
+    fetchQ();
+  } else {
+    fetchQ();
+  }
+}
+// ────────────────────────────────────────────────────────────────
+
+function doReset() {
+  clearSave();
+  Object.assign(S,{grade:2,correct:0,total:0,streak:0,antiStreak:0,history:[],current:null,answered:false,qCount:0,questionLog:[],askedTexts:[]});
+  updateUI();updateBadge();
+  document.getElementById('level-msg').style.display='none';
+  document.getElementById('skill-banner').style.display='none';
+  fetchQ();
+}
+
+function showLoading() {
+  const block=getBlock(S.qCount+1);
+  document.getElementById('main').innerHTML=`
+    <div class="loading">
+      <div class="spinner"></div>
+      <p>Generating a ${block.skill} question...</p>
+      <small>Standard: ${block.std} · Question ${S.qCount+1} of ${S.maxQ}</small>
+    </div>`;
+}
+
+function showError(msg) {
+  document.getElementById('main').innerHTML=`
+    <div class="error">
+      <p>😕 Couldn't load the question. Check your connection and try again.<br><small>${msg||''}</small></p>
+      <button class="btn-retry" onclick="fetchQ()">Try again</button>
+    </div>`;
+}
+
+function showResults() {
+  clearSave(); // completed — no need to save anymore
+  const pct = S.total > 0 ? Math.round((S.correct/S.total)*100) : 0;
+  const star = pct>=90?'🏆':pct>=75?'⭐':pct>=60?'💫':'💪';
+  const msg  = pct>=90?"Outstanding! You're a reading superstar!":pct>=75?"Great work! You're a strong reader!":pct>=60?"Good effort — keep practicing!":"Nice try! Every question makes you better!";
+
+  // Per-skill breakdown from questionLog
+  const skillMap = {};
+  S.questionLog.forEach(entry => {
+    const blk = getBlock(entry.q._qNum || 0);
+    const label = entry.q.skillLabel || entry.q.type || 'General';
+    if (!skillMap[label]) skillMap[label] = {correct:0,total:0};
+    skillMap[label].total++;
+    if (entry.wasCorrect) skillMap[label].correct++;
+  });
+
+  // Skill breakdown rows — group by CURRICULUM block labels instead
+  const blockMap = {};
+  S.questionLog.forEach((entry,i) => {
+    const qNum = i + 1; // approximate position
+    const blk = getBlock(qNum);
+    if (!blockMap[blk.skill]) blockMap[blk.skill] = {correct:0,total:0,std:blk.std};
+    blockMap[blk.skill].total++;
+    if (entry.wasCorrect) blockMap[blk.skill].correct++;
+  });
+
+  const breakdownRows = Object.entries(blockMap).map(([skill,d])=>{
+    const p = Math.round((d.correct/d.total)*100);
+    const color = p>=80?'#639922':p>=60?'#854F0B':'#A32D2D';
+    const bg    = p>=80?'#EAF3DE':p>=60?'#FAEEDA':'#FCEBEB';
+    return `<tr>
+      <td style="padding:8px 12px;font-size:13px;color:#333;border-bottom:1px solid #f0f0f0">${skill}</td>
+      <td style="padding:8px 12px;font-size:12px;color:#888;border-bottom:1px solid #f0f0f0">${d.std}</td>
+      <td style="padding:8px 12px;text-align:center;border-bottom:1px solid #f0f0f0">
+        <span style="background:${bg};color:${color};border-radius:4px;padding:2px 8px;font-size:12px;font-weight:700">${d.correct}/${d.total} (${p}%)</span>
+      </td>
+    </tr>`;
+  }).join('');
+
+  const breakdownTable = Object.keys(blockMap).length > 0 ? `
+    <div style="margin:1.5rem 0;text-align:left">
+      <div style="font-size:13px;font-weight:700;color:#1a1a2e;margin-bottom:8px">📊 Score by Skill Area</div>
+      <table style="width:100%;border-collapse:collapse;background:#fff;border-radius:10px;overflow:hidden;border:1px solid #e0e6ef">
+        <thead>
+          <tr style="background:#f4f6fa">
+            <th style="padding:8px 12px;font-size:12px;color:#888;text-align:left;font-weight:700">Skill</th>
+            <th style="padding:8px 12px;font-size:12px;color:#888;text-align:left;font-weight:700">Standard</th>
+            <th style="padding:8px 12px;font-size:12px;color:#888;text-align:center;font-weight:700">Score</th>
+          </tr>
+        </thead>
+        <tbody>${breakdownRows}</tbody>
+      </table>
+    </div>` : '';
+
+  // Grade level reached
+  const gradeReached = gradeLabels[S.grade] || gradeLabels[2];
+  const savedDate = new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+
+  document.getElementById('main').innerHTML=`
+    <div class="results">
+      <div class="score-ring"><div class="pct">${pct}%</div><div class="lbl">Score</div></div>
+      <h2>${star} Assessment Complete!</h2>
+      <p class="sub-msg">${msg}</p>
+      <div style="font-size:12px;color:#aaa;margin-bottom:1.25rem">Completed ${savedDate}</div>
+      <div class="result-grid">
+        <div class="stat"><strong>${S.correct}</strong><span>Correct</span></div>
+        <div class="stat"><strong>${S.total-S.correct}</strong><span>Missed</span></div>
+        <div class="stat"><strong>${gradeReached}</strong><span>Reached</span></div>
+      </div>
+      ${breakdownTable}
+      <button class="btn-restart" onclick="doReset()">🔄 Start a new assessment</button>
+    </div>`;
+  document.getElementById('level-msg').style.display='none';
+  document.getElementById('skill-banner').style.display='none';
+}
+
+// ── Init ───────────────────────────────────────────────────────
+(function init() {
+  const saved = loadSaved();
+  if (saved && saved.qCount > 0 && saved.qCount < S.maxQ) {
+    showResumeScreen(saved);
+  } else {
+    fetchQ();
+  }
+})();
+</script>
+</body>
+</html>
